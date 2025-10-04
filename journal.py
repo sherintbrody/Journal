@@ -64,6 +64,7 @@ if direction:
 st.title("📊 Trading Journal Dashboard")
 st.caption(f"Last synced: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
 st.dataframe(filtered)
+st.write("Raw properties:", r["properties"])
 
 # Performance chart: cumulative result
 st.subheader("📈 Cumulative Result Over Time")
