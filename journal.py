@@ -42,7 +42,7 @@ def fetch_trades():
 
 # Manual refresh button
 if st.sidebar.button("🔄 Refresh Data"):
-    st.experimental_rerun()
+    st.rerun()
 
 # Load and clean data
 df = fetch_trades()
