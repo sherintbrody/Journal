@@ -14,12 +14,12 @@ def fetch_trades():
     for r in results:
         p = r["properties"]
         rows.append({
-            "Open Date": p["Open Date"]["date"]["start"] if p["open date"]["date"] else None,
-            "Close Date": p["Close Date"]["date"]["start"] if p["close date"]["date"] else None,
+            "Open Date": p["Open Date"]["date"]["start"] if p["Open Date"]["date"] else None,
+            "Close Date": p["Close Date"]["date"]["start"] if p["Close Date"]["date"] else None,
             "Lot": p["Lot"]["number"],
-            "Buy/Sell": p["Buy/Sell"]["select"]["name"] if p["buy/sell"]["select"] else "",
-            "Instrument": p["Instrument"]["rich_text"][0]["text"]["content"] if p["instrument"]["rich_text"] else "",
-            "True Seasonality": p["True Seasonality"]["select"]["name"] if p["true seasonality"]["select"] else "",
+            "Buy/Sell": p["Buy/Sell"]["select"]["name"] if p["Buy/Sell"]["select"] else "",
+            "Instrument": p["Instrument"]["rich_text"][0]["text"]["content"] if p["Instrument"]["rich_text"] else "",
+            "True Seasonality": p["True Seasonality"]["select"]["name"] if p["True Seasonality"]["select"] else "",
             "Entry Price": p["Entry Price"]["number"],
             "Stop Loss": p["Stop Loss"]["number"],
             "TP": p["TP"]["number"],
