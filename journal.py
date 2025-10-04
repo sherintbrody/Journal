@@ -7,7 +7,7 @@ import plotly.express as px
 notion = Client(auth=st.secrets["NOTION_TOKEN"])
 database_id = st.secrets["NOTION_DB_ID"]
 
-# Safe field extractor
+# Modular field extractor
 def get_field(p, key, path):
     try:
         val = p.get(key, {})
@@ -17,7 +17,7 @@ def get_field(p, key, path):
     except (KeyError, IndexError, TypeError):
         return None
 
-# Fetch journal entries
+# Fetch journal entries live
 def fetch_trades():
     results = notion.databases.query(database_id=database_id)["results"]
     rows = []
@@ -40,6 +40,10 @@ def fetch_trades():
         })
     return pd.DataFrame(rows)
 
+# Manual refresh button
+if st.sidebar.button("🔄 Refresh Data"):
+    st.experimental_rerun()
+
 # Load and clean data
 df = fetch_trades()
 df["Open Date"] = pd.to_datetime(df["Open Date"], errors="coerce")
@@ -58,6 +62,7 @@ if direction:
 
 # Main dashboard
 st.title("📊 Trading Journal Dashboard")
+st.caption(f"Last synced: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
 st.dataframe(filtered)
 
 # Performance chart: cumulative result
