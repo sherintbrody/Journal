@@ -14,14 +14,14 @@ def fetch_trades():
     for r in results:
         p = r["properties"]
         rows.append({
-            "Open Date": p["open date"]["date"]["start"] if p["open date"]["date"] else None,
-            "Close Date": p["close date"]["date"]["start"] if p["close date"]["date"] else None,
-            "Lot": p["lot"]["number"],
-            "Buy/Sell": p["buy/sell"]["select"]["name"] if p["buy/sell"]["select"] else "",
-            "Instrument": p["instrument"]["rich_text"][0]["text"]["content"] if p["instrument"]["rich_text"] else "",
-            "True Seasonality": p["true seasonality"]["select"]["name"] if p["true seasonality"]["select"] else "",
-            "Entry Price": p["Entry price"]["number"],
-            "Stop Loss": p["stop loss"]["number"],
+            "Open Date": p["Open Date"]["date"]["start"] if p["open date"]["date"] else None,
+            "Close Date": p["Close Date"]["date"]["start"] if p["close date"]["date"] else None,
+            "Lot": p["Lot"]["number"],
+            "Buy/Sell": p["Buy/Sell"]["select"]["name"] if p["buy/sell"]["select"] else "",
+            "Instrument": p["Instrument"]["rich_text"][0]["text"]["content"] if p["instrument"]["rich_text"] else "",
+            "True Seasonality": p["True Seasonality"]["select"]["name"] if p["true seasonality"]["select"] else "",
+            "Entry Price": p["Entry Price"]["number"],
+            "Stop Loss": p["Stop Loss"]["number"],
             "TP": p["TP"]["number"],
             "Trailing/Exit Price": p["trailing/exit price"]["number"],
             "RR": p["RR"]["number"],
