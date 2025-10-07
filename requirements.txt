@@ -1,4 +1,2 @@
 streamlit
-notion-client
-pandas
-plotly
+streamlit-option-menu
