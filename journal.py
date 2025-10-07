@@ -1,84 +1,72 @@
 import streamlit as st
-from notion_client import Client
-import pandas as pd
-import plotly.express as px
+from streamlit_option_menu import option_menu
 
-# Connect to Notion
-notion = Client(auth=st.secrets["NOTION_TOKEN"])
-database_id = st.secrets["NOTION_DB_ID"]
+# --- Custom CSS for dark sidebar ---
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #0e1117;
+        padding-top: 2rem;
+    }
+    [data-testid="stSidebar"] * {
+        color: #cfcfcf;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .nav-link-selected {
+        background-color: #2a2a2a !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# Modular field extractor
-def get_field(p, key, path):
-    try:
-        val = p.get(key, {})
-        for step in path:
-            val = val[step]
-        return val
-    except (KeyError, IndexError, TypeError):
-        return None
+# --- Sidebar Navigation ---
+with st.sidebar:
+    st.image("https://streamlit.io/images/brand/streamlit-mark-color.png", width=120)  # replace with your logo
+    st.markdown("### Trading Journal Pro")
 
-# Fetch journal entries live
-def fetch_trades():
-    results = notion.databases.query(database_id=database_id)["results"]
-    rows = []
-    for r in results:
-        p = r["properties"]
-        rows.append({
-            "Open Date": get_field(p, "Open Date", ["date", "start"]),
-            "Close Date": get_field(p, "Close Date", ["date", "start"]),
-            "Lot": get_field(p, "Lot", ["number"]),
-            "Buy/Sell": get_field(p, "Buy/Sell", ["select", "name"]),
-            "Instrument": get_field(p, "Instrument", ["rich_text", 0, "text", "content"]),
-            "True Seasonality": get_field(p, "True Seasonality", ["select", "name"]),
-            "Entry Price": get_field(p, "Entry Price", ["number"]),
-            "Stop Loss": get_field(p, "Stop Loss", ["number"]),
-            "TP": get_field(p, "TP", ["number"]),
-            "Trailing/Exit Price": get_field(p, "Trailing/Exit Price", ["number"]),
-            "RR": get_field(p, "RR", ["number"]),
-            "Result": get_field(p, "Result", ["number"]),
-            "Remarks": get_field(p, "Remarks", ["rich_text", 0, "text", "content"])
-        })
-    return pd.DataFrame(rows)
-
-# Manual refresh button
-if st.sidebar.button("🔄 Refresh Data"):
-    st.rerun()
-
-# Load and clean data
-df = fetch_trades()
-df["Open Date"] = pd.to_datetime(df["Open Date"], errors="coerce")
-df["Close Date"] = pd.to_datetime(df["Close Date"], errors="coerce")
-
-# Sidebar filters
-st.sidebar.title("🔍 Trade Filters")
-instrument = st.sidebar.multiselect("Instrument", df["Instrument"].dropna().unique())
-direction = st.sidebar.multiselect("Buy/Sell", df["Buy/Sell"].dropna().unique())
-
-filtered = df.copy()
-if instrument:
-    filtered = filtered[filtered["Instrument"].isin(instrument)]
-if direction:
-    filtered = filtered[filtered["Buy/Sell"].isin(direction)]
-
-# Main dashboard
-st.title("📊 Trading Journal Dashboard")
-st.caption(f"Last synced: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
-st.dataframe(filtered)
-st.write("Raw properties:", r["properties"])
-
-# Performance chart: cumulative result
-st.subheader("📈 Cumulative Result Over Time")
-if not filtered.empty and "Close Date" in filtered.columns:
-    perf = filtered.sort_values("Close Date").copy()
-    perf["Cumulative Result"] = perf["Result"].fillna(0).cumsum()
-    fig_line = px.line(perf, x="Close Date", y="Cumulative Result", markers=True)
-    st.plotly_chart(fig_line)
-
-# Pie chart: win vs loss
-st.subheader("🥧 Win/Loss Distribution")
-if not filtered.empty:
-    win_loss = filtered["Result"].fillna(0).apply(
-        lambda x: "Win" if x > 0 else ("Loss" if x < 0 else "Break-even")
+    selected = option_menu(
+        menu_title=None,
+        options=["Dashboard", "New Trade", "Open Positions", "Trade History", "Analytics", "Settings"],
+        icons=["speedometer2", "plus-circle", "briefcase", "clock-history", "bar-chart-line", "gear"],
+        menu_icon="cast",
+        default_index=0,
+        styles={
+            "container": {"padding": "0!important", "background-color": "#0e1117"},
+            "icon": {"color": "#cfcfcf", "font-size": "18px"},
+            "nav-link": {
+                "color": "#cfcfcf",
+                "font-size": "16px",
+                "text-align": "left",
+                "margin": "5px 0",
+                "--hover-color": "#262730"
+            },
+            "nav-link-selected": {"background-color": "#2a2a2a"},
+        }
     )
-    fig_pie = px.pie(names=win_loss, title="Trade Outcomes")
-    st.plotly_chart(fig_pie)
+
+    st.markdown("---")
+    st.info("💡 Tip: Consistently tracking your trades is key to improvement!")
+
+# --- Page Routing ---
+if selected == "Dashboard":
+    st.title("📊 Dashboard")
+    st.write("Overview of performance, KPIs, and charts here.")
+
+elif selected == "New Trade":
+    st.title("📝 New Trade")
+    st.write("Form to log a new trade.")
+
+elif selected == "Open Positions":
+    st.title("📂 Open Positions")
+    st.write("List of currently open trades.")
+
+elif selected == "Trade History":
+    st.title("📜 Trade History")
+    st.write("Table of past trades with filters.")
+
+elif selected == "Analytics":
+    st.title("📈 Analytics")
+    st.write("Charts: PnL, win rate, account growth, etc.")
+
+elif selected == "Settings":
+    st.title("⚙️ Settings")
+    st.write("User preferences, themes, and account settings.")
